@@ -122,13 +122,223 @@ drwxr-xr-x 1 user group  0 Nov 11 12:48 private-dir/
 - 그러나 Windows Git Bash 환경에서는 `chmod` 결과가 `ls -l` 출력에 기대한 형태로 반영되지 않았다.
 - 이는 Windows의 파일 시스템 권한 처리 방식과 Git Bash의 권한 표시 방식이 Linux 환경과 다를 수 있기 때문이다.
 - 권한 명령의 의미는 이해했고, `600`, `644`, `700`, `755`의 차이를 정리했다.
-## 6. Docker 설치 및 점검
+## 6.Docker 설치 및 점검
 
-작성 예정
+### Docker 버전 확인
 
-## 7. Docker 기본 운영 명령
+Docker가 정상적으로 설치되었는지 확인하기 위해 버전을 조회했다.
 
-작성 예정
+```bash
+docker --version
+```
+
+실행 결과:
+
+```text
+Docker version 29.9.2, build a82e528
+```
+
+Docker Compose 버전도 함께 확인했다.
+
+```bash
+docker compose version
+```
+
+실행 결과:
+
+```text
+Docker Compose version v5.6.1
+```
+
+---
+
+### Docker 데몬 동작 확인
+
+Docker 데몬이 정상적으로 실행 중인지 확인하기 위해 현재 실행 중인 컨테이너 목록을 조회했다.
+
+```bash
+docker ps
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
+
+실행 중인 컨테이너는 없었지만, 에러 없이 목록이 출력되었으므로 Docker 데몬이 정상 동작 중임을 확인했다.
+
+---
+
+## 7.Docker 기본 운영 명령
+
+### hello-world 컨테이너 실행
+
+Docker가 실제로 이미지를 다운로드하고 컨테이너를 실행할 수 있는지 확인하기 위해 `hello-world` 컨테이너를 실행했다.
+
+```bash
+docker run hello-world
+```
+
+실행 결과:
+
+```text
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+Digest: sha256:c567b231f65614688711a75f31518a064258a51d442117a3e771a3a8fdba78ef
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+```
+
+`Hello from Docker!` 메시지가 출력되었으므로 Docker가 정상적으로 이미지를 받고 컨테이너를 실행했음을 확인했다.
+
+---
+
+### 전체 컨테이너 목록 확인
+
+종료된 컨테이너까지 포함하여 전체 컨테이너 목록을 확인했다.
+
+```bash
+docker ps -a
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE         COMMAND    CREATED          STATUS                      PORTS     NAMES
+047685ee24c5   hello-world   "/hello"   16 seconds ago   Exited (0) 16 seconds ago             thirsty_jepsen
+```
+
+`Exited (0)`은 컨테이너가 정상적으로 실행을 마치고 종료되었다는 의미이다.
+
+---
+
+### Docker 이미지 목록 확인
+
+현재 로컬에 저장된 Docker 이미지 목록을 확인했다.
+
+```bash
+docker images
+```
+
+실행 결과:
+
+```text
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:latest        f59abe656b69         13MB         3.94MB        
+hello-world:latest   c567b231f656       25.9kB         9.49kB    U   
+my-app:latest        bce14bbc6d5c        241MB         63.9MB        
+ubuntu:latest        6a06111c3b0a        163MB         45.9MB        
+```
+
+`hello-world:latest` 이미지가 다운로드된 것을 확인했다.
+
+---
+
+### Ubuntu 컨테이너 실행
+
+Ubuntu 컨테이너를 실행하고 컨테이너 내부에 접속했다.
+
+```bash
+docker run -it ubuntu bash
+```
+
+실행 후 프롬프트가 다음과 같이 변경되었다.
+
+```bash
+root@a8b6dc72ed4e:/#
+```
+
+이는 Ubuntu 컨테이너 내부의 `bash` 셸에 접속했다는 의미이다.
+
+---
+
+### 컨테이너 내부 명령어 실행
+
+컨테이너 내부에서 현재 위치를 확인했다.
+
+```bash
+pwd
+```
+
+실행 결과:
+
+```text
+/
+```
+
+루트 디렉터리에 위치해 있음을 확인했다.
+
+---
+
+컨테이너 내부의 디렉터리 목록을 확인했다.
+
+```bash
+ls
+```
+
+실행 결과:
+
+```text
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+```
+
+일반적인 Linux 파일 시스템 구조가 존재함을 확인했다.
+
+---
+
+Ubuntu 버전 정보를 확인했다.
+
+```bash
+cat /etc/os-release
+```
+
+실행 결과:
+
+```text
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+```
+
+현재 실행한 `ubuntu:latest` 이미지가 Ubuntu 26.04.1 LTS 기반임을 확인했다.
+
+---
+
+### Ubuntu 컨테이너 종료
+
+컨테이너 내부 작업을 마친 뒤 `exit` 명령어로 컨테이너를 종료했다.
+
+```bash
+exit
+```
+
+실행 결과:
+
+```text
+exit
+```
+
+`bash` 셸이 종료되면서 Ubuntu 컨테이너도 함께 종료되었다.
+
+---
+
+## Docker 실습 요약
+
+이번 실습을 통해 다음 내용을 확인했다.
+
+- Docker와 Docker Compose가 정상 설치되어 있음
+- Docker 데몬이 정상 실행 중임
+- `hello-world` 이미지를 다운로드하고 컨테이너를 실행할 수 있음
+- `docker ps`, `docker ps -a`, `docker images` 명령어로 컨테이너와 이미지 상태를 확인할 수 있음
+- Ubuntu 컨테이너를 실행하고 내부에서 Linux 명령어를 사용할 수 있음
+- `exit` 명령어로 컨테이너 내부 셸을 종료할 수 있음
 
 ## 8. Dockerfile 기반 웹 서버
 
