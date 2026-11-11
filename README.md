@@ -463,9 +463,155 @@ docker images
 - 컨테이너를 삭제해도 이미지는 자동으로 삭제되지 않음
 - `docker rmi` 명령어로 Docker 이미지를 삭제할 수 있음
 
-## 8. Dockerfile 기반 웹 서버
+## 8. Dockerfile 기반 커스텀 이미지 제작
 
-작성 예정
+### 선택한 방식
+
+기존 Dockerfile/이미지 기반 커스텀 이미지 제작 방식 중 **(B) Linux 베이스 이미지 활용** 방식을 선택했다.
+
+- (A) 웹 서버 베이스 이미지 활용
+- (B) Linux 베이스 이미지 활용
+
+이번 실습에서는 `alpine:latest` 이미지를 베이스 이미지로 사용하여 직접 커스텀 Docker 이미지를 만들고 실행했다.
+
+---
+
+### 기존 베이스 이미지
+
+```dockerfile
+FROM alpine:latest
+```
+
+`alpine:latest`는 가볍고 용량이 작은 Linux 베이스 이미지이다.  
+간단한 쉘 스크립트를 실행하는 커스텀 이미지를 만들기 위해 선택했다.
+
+---
+
+### 폴더 구조
+
+```text
+dockerfile-practice/
+├── Dockerfile
+└── app.sh
+```
+
+---
+
+### Dockerfile 내용
+
+```dockerfile
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY app.sh .
+
+RUN echo "This file was created during docker build." > build-info.txt
+
+CMD ["sh", "app.sh"]
+```
+
+---
+
+### app.sh 내용
+
+```sh
+echo "Hello from my custom Docker image!"
+echo "Current directory:"
+pwd
+echo "Files in this container:"
+ls -al
+echo "Build info:"
+cat build-info.txt
+```
+
+---
+
+### 내가 적용한 커스텀 포인트
+
+| 커스텀 포인트 | 목적 |
+|---|---|
+| `FROM alpine:latest` | 가벼운 Linux 베이스 이미지를 사용하기 위해 설정 |
+| `WORKDIR /app` | 컨테이너 내부 작업 디렉터리를 `/app`으로 지정 |
+| `COPY app.sh .` | 로컬의 `app.sh` 파일을 이미지 내부 `/app` 디렉터리로 복사 |
+| `RUN echo ... > build-info.txt` | 이미지 빌드 과정에서 `build-info.txt` 파일을 생성 |
+| `CMD ["sh", "app.sh"]` | 컨테이너 실행 시 자동으로 `app.sh` 스크립트 실행 |
+
+---
+
+### 이미지 빌드 명령어
+
+```bash
+docker build -t docker-hello:1.0 .
+```
+
+위 명령어로 현재 디렉터리의 `Dockerfile`을 사용하여 `docker-hello:1.0` 이미지를 빌드했다.
+
+---
+
+### 컨테이너 실행 명령어
+
+```bash
+docker run --name hello-container docker-hello:1.0
+```
+
+---
+
+### 컨테이너 실행 결과
+
+```text
+Hello from my custom Docker image!
+Current directory:
+/app
+Files in this container:
+total 16
+drwxr-xr-x    1 root     root          4096 Nov 11 04:41 .
+drwxr-xr-x    1 root     root          4096 Nov 11 04:42 ..
+-rwxr-xr-x    1 root     root           148 Nov 11 04:40 app.sh
+-rw-r--r--    1 root     root            43 Nov 11 04:41 build-info.txt
+Build info:
+This file was created during docker build.
+```
+
+실행 결과를 통해 다음을 확인할 수 있었다.
+
+- 컨테이너 내부 현재 디렉터리가 `/app`으로 설정되었다.
+- `COPY` 명령으로 복사한 `app.sh` 파일이 존재한다.
+- `RUN` 명령으로 생성한 `build-info.txt` 파일이 존재한다.
+- 컨테이너 실행 시 `CMD`에 의해 `app.sh`가 자동 실행되었다.
+
+---
+
+### 이미지 확인
+
+```bash
+docker images
+```
+
+실행 결과:
+
+```text
+IMAGE              ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:latest      f59abe656b69         13MB         3.94MB        
+docker-hello:1.0   6ed3288ff5a2         13MB         3.86MB        
+my-app:latest      bce14bbc6d5c        241MB         63.9MB        
+ubuntu:latest      6a06111c3b0a        163MB         45.9MB
+```
+
+이미지 목록에서 직접 빌드한 커스텀 이미지 `docker-hello:1.0`이 생성된 것을 확인했다.
+
+---
+
+### 배운 점
+
+- `Dockerfile`은 Docker 이미지를 만들기 위한 설계도이다.
+- 기존 베이스 이미지인 `alpine:latest`를 기반으로 나만의 커스텀 이미지를 만들 수 있다.
+- `WORKDIR`로 컨테이너 내부 작업 디렉터리를 지정할 수 있다.
+- `COPY`로 로컬 파일을 이미지 내부에 포함할 수 있다.
+- `RUN`은 이미지 빌드 중 실행되는 명령이다.
+- `CMD`는 컨테이너가 실행될 때 실행되는 명령이다.
+- `docker build`로 이미지를 생성하고, `docker run`으로 컨테이너를 실행할 수 있다.
+- 실행 결과를 통해 커스텀 이미지가 정상적으로 빌드되고 실행된 것을 확인했다.
 
 ## 9. 바인드 마운트 실습
 
