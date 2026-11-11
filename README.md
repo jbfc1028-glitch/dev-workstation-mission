@@ -613,9 +613,153 @@ ubuntu:latest      6a06111c3b0a        163MB         45.9MB
 - `docker build`로 이미지를 생성하고, `docker run`으로 컨테이너를 실행할 수 있다.
 - 실행 결과를 통해 커스텀 이미지가 정상적으로 빌드되고 실행된 것을 확인했다.
 
-## 9. 바인드 마운트 실습
+## 9. Docker 웹 서버 실행 및 포트 매핑
 
-작성 예정
+### 실습 목표
+
+Docker 컨테이너 안에서 Nginx 웹 서버를 실행하고, 호스트 PC의 브라우저에서 접속할 수 있도록 포트 매핑을 실습했다.
+
+---
+
+### 폴더 구조
+
+```text
+web-server-practice/
+├── Dockerfile
+└── index.html
+```
+
+---
+
+### Dockerfile 내용
+
+```dockerfile
+FROM nginx:alpine
+
+COPY index.html /usr/share/nginx/html/index.html
+```
+
+`nginx:alpine` 이미지를 기반으로 커스텀 웹 서버 이미지를 만들었다.  
+작성한 `index.html` 파일을 Nginx 기본 웹 루트 경로인 `/usr/share/nginx/html/index.html`에 복사했다.
+
+---
+
+### index.html 내용
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Docker Web Practice</title>
+</head>
+<body>
+  <h1>Hello from Docker Nginx!</h1>
+  <p>This page is served from a Docker container.</p>
+</body>
+</html>
+```
+
+---
+
+### 이미지 빌드 명령어
+
+```bash
+docker build -t docker-web:1.0 .
+```
+
+위 명령어로 현재 디렉터리의 `Dockerfile`을 사용하여 `docker-web:1.0` 이미지를 생성했다.
+
+---
+
+### 이미지 확인
+
+```bash
+docker images
+```
+
+실행 결과:
+
+```text
+IMAGE              ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:latest      f59abe656b69         13MB         3.94MB        
+docker-hello:1.0   6ed3288ff5a2         13MB         3.86MB        
+docker-web:1.0     2f81288d1a91       93.7MB         26.4MB        
+my-app:latest      bce14bbc6d5c        241MB         63.9MB        
+ubuntu:latest      6a06111c3b0a        163MB         45.9MB
+```
+
+`docker-web:1.0` 이미지가 정상적으로 생성된 것을 확인했다.
+
+---
+
+### 컨테이너 실행 명령어
+
+```bash
+docker run --name web-container -d -p 8080:80 docker-web:1.0
+```
+
+옵션 설명:
+
+| 옵션 | 의미 |
+|---|---|
+| `--name web-container` | 컨테이너 이름을 `web-container`로 지정 |
+| `-d` | 컨테이너를 백그라운드에서 실행 |
+| `-p 8080:80` | 호스트의 8080 포트를 컨테이너의 80 포트와 연결 |
+| `docker-web:1.0` | 실행할 이미지 이름 |
+
+---
+
+### 포트 매핑 확인
+
+```bash
+docker ps
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE            COMMAND                   CREATED          STATUS          PORTS                                     NAMES
+155c1ae71711   docker-web:1.0   "/docker-entrypoint.…"   17 seconds ago   Up 17 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   web-container
+```
+
+`PORTS` 항목에서 다음 내용을 확인할 수 있었다.
+
+```text
+0.0.0.0:8080->80/tcp
+```
+
+이는 내 PC의 `8080` 포트로 들어온 요청이 컨테이너 내부의 `80` 포트로 전달된다는 의미이다.
+
+---
+
+### 웹 브라우저 접속 확인
+
+브라우저에서 아래 주소로 접속했다.
+
+```text
+http://localhost:8080
+```
+
+접속 결과 `index.html`에 작성한 내용이 정상적으로 표시되었다.
+
+```text
+Hello from Docker Nginx!
+This page is served from a Docker container.
+```
+
+![Docker Nginx 접속 화면](web-server-practice/screenshots/docker-web-localhost.png)
+
+
+---
+
+### 배운 점
+
+- Docker 컨테이너 안에서 웹 서버를 실행할 수 있다.
+- `nginx:alpine` 이미지를 사용하면 가벼운 Nginx 웹 서버 이미지를 만들 수 있다.
+- `COPY` 명령어로 내가 만든 HTML 파일을 컨테이너 내부 웹 루트 경로에 넣을 수 있다.
+- `-p 8080:80` 옵션을 사용하면 호스트 PC의 포트와 컨테이너 내부 포트를 연결할 수 있다.
+- 브라우저에서 `localhost:8080`으로 접속하면 컨테이너에서 실행 중인 웹 서버에 접근할 수 있다.
 
 ## 10. Docker 볼륨 영속성 검증
 
