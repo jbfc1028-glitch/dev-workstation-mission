@@ -170,11 +170,15 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 ---
 
-## 7.Docker 기본 운영 명령
+## 7. Docker 기본 운영 명령
 
-### hello-world 컨테이너 실행
+Docker가 정상적으로 이미지를 다운로드하고 컨테이너를 실행할 수 있는지 확인하고, 컨테이너와 이미지를 관리하는 기본 명령어를 실습했다.
 
-Docker가 실제로 이미지를 다운로드하고 컨테이너를 실행할 수 있는지 확인하기 위해 `hello-world` 컨테이너를 실행했다.
+---
+
+### 7.1 hello-world 컨테이너 실행
+
+Docker 설치가 정상적으로 되었는지 확인하기 위해 `hello-world` 컨테이너를 실행했다.
 
 ```bash
 docker run hello-world
@@ -192,13 +196,13 @@ Hello from Docker!
 This message shows that your installation appears to be working correctly.
 ```
 
-`Hello from Docker!` 메시지가 출력되었으므로 Docker가 정상적으로 이미지를 받고 컨테이너를 실행했음을 확인했다.
+`Hello from Docker!` 메시지가 출력되었으므로 Docker가 정상적으로 이미지를 다운로드하고 컨테이너를 실행했음을 확인했다.
 
 ---
 
-### 전체 컨테이너 목록 확인
+### 7.2 전체 컨테이너 목록 확인
 
-종료된 컨테이너까지 포함하여 전체 컨테이너 목록을 확인했다.
+실행 중인 컨테이너뿐만 아니라 종료된 컨테이너까지 확인하기 위해 다음 명령어를 실행했다.
 
 ```bash
 docker ps -a
@@ -211,11 +215,11 @@ CONTAINER ID   IMAGE         COMMAND    CREATED          STATUS                 
 047685ee24c5   hello-world   "/hello"   16 seconds ago   Exited (0) 16 seconds ago             thirsty_jepsen
 ```
 
-`Exited (0)`은 컨테이너가 정상적으로 실행을 마치고 종료되었다는 의미이다.
+`Exited (0)`은 컨테이너가 오류 없이 정상적으로 실행을 마치고 종료되었다는 의미이다.
 
 ---
 
-### Docker 이미지 목록 확인
+### 7.3 Docker 이미지 목록 확인
 
 현재 로컬에 저장된 Docker 이미지 목록을 확인했다.
 
@@ -233,13 +237,15 @@ my-app:latest        bce14bbc6d5c        241MB         63.9MB
 ubuntu:latest        6a06111c3b0a        163MB         45.9MB        
 ```
 
-`hello-world:latest` 이미지가 다운로드된 것을 확인했다.
+`hello-world:latest` 이미지가 로컬에 다운로드된 것을 확인했다.
+
+컨테이너를 실행하면 필요한 이미지가 로컬에 없을 경우 Docker가 자동으로 이미지를 다운로드한다.
 
 ---
 
-### Ubuntu 컨테이너 실행
+### 7.4 Ubuntu 컨테이너 실행
 
-Ubuntu 컨테이너를 실행하고 컨테이너 내부에 접속했다.
+Ubuntu 컨테이너를 실행하고 컨테이너 내부의 `bash` 셸에 접속했다.
 
 ```bash
 docker run -it ubuntu bash
@@ -251,13 +257,22 @@ docker run -it ubuntu bash
 root@a8b6dc72ed4e:/#
 ```
 
-이는 Ubuntu 컨테이너 내부의 `bash` 셸에 접속했다는 의미이다.
+이는 Ubuntu 컨테이너 내부에 접속했다는 의미이다.
+
+옵션의 의미는 다음과 같다.
+
+| 옵션 | 의미 |
+|---|---|
+| `-i` | 표준 입력을 유지한다 |
+| `-t` | 터미널 환경을 제공한다 |
+| `ubuntu` | 실행할 이미지 이름 |
+| `bash` | 컨테이너 안에서 실행할 명령어 |
 
 ---
 
-### 컨테이너 내부 명령어 실행
+### 7.5 컨테이너 내부 명령어 실행
 
-컨테이너 내부에서 현재 위치를 확인했다.
+Ubuntu 컨테이너 내부에서 현재 위치를 확인했다.
 
 ```bash
 pwd
@@ -307,11 +322,11 @@ ID=ubuntu
 ID_LIKE=debian
 ```
 
-현재 실행한 `ubuntu:latest` 이미지가 Ubuntu 26.04.1 LTS 기반임을 확인했다.
+현재 실행한 `ubuntu:latest` 이미지가 Ubuntu 기반 이미지임을 확인했다.
 
 ---
 
-### Ubuntu 컨테이너 종료
+### 7.6 Ubuntu 컨테이너 종료
 
 컨테이너 내부 작업을 마친 뒤 `exit` 명령어로 컨테이너를 종료했다.
 
@@ -329,16 +344,124 @@ exit
 
 ---
 
-## Docker 실습 요약
+### 7.7 종료된 컨테이너 확인
+
+Ubuntu 컨테이너 종료 후 전체 컨테이너 목록을 다시 확인했다.
+
+```bash
+docker ps -a
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE         COMMAND    CREATED          STATUS                     PORTS     NAMES
+a8b6dc72ed4e   ubuntu        "bash"     13 minutes ago   Exited (0) 5 minutes ago             reverent_fermat
+047685ee24c5   hello-world   "/hello"   16 minutes ago   Exited (0) 8 minutes ago             thirsty_jepsen
+```
+
+`hello-world` 컨테이너와 `ubuntu` 컨테이너가 모두 종료된 상태임을 확인했다.
+
+---
+
+### 7.8 종료된 컨테이너 삭제
+
+종료된 컨테이너는 더 이상 사용하지 않을 경우 삭제할 수 있다.
+
+```bash
+docker rm a8b6dc72ed4e 047685ee24c5
+```
+
+삭제 후 다시 전체 컨테이너 목록을 확인했다.
+
+```bash
+docker ps -a
+```
+
+컨테이너 목록이 비어 있으면 삭제가 정상적으로 완료된 것이다.
+
+```text
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
+
+컨테이너를 삭제해도 Docker 이미지는 자동으로 삭제되지 않는다.
+
+---
+
+### 7.9 이미지 목록 재확인
+
+컨테이너 삭제 후에도 이미지가 남아 있는지 확인했다.
+
+```bash
+docker images
+```
+
+실행 결과:
+
+```text
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:latest        f59abe656b69         13MB         3.94MB        
+hello-world:latest   c567b231f656       25.9kB         9.49kB        
+my-app:latest        bce14bbc6d5c        241MB         63.9MB        
+ubuntu:latest        6a06111c3b0a        163MB         45.9MB        
+```
+
+컨테이너는 삭제되었지만 이미지들은 로컬에 그대로 남아 있음을 확인했다.
+
+---
+
+### 7.10 Docker 이미지 삭제
+
+설치 확인용으로 사용한 `hello-world` 이미지는 더 이상 필요하지 않으므로 삭제할 수 있다.
+
+```bash
+docker rmi hello-world:latest
+```
+
+또는 다음 명령어를 사용할 수도 있다.
+
+```bash
+docker image rm hello-world:latest
+```
+
+삭제 후 이미지 목록을 다시 확인한다.
+
+```bash
+docker images
+```
+
+`hello-world:latest` 이미지가 목록에서 사라지면 정상적으로 삭제된 것이다.
+
+---
+
+### 7.11 Docker 기본 명령어 정리
+
+| 명령어 | 설명 |
+|---|---|
+| `docker run hello-world` | `hello-world` 컨테이너 실행 |
+| `docker run -it ubuntu bash` | Ubuntu 컨테이너를 실행하고 bash 셸 접속 |
+| `docker ps` | 실행 중인 컨테이너 목록 확인 |
+| `docker ps -a` | 종료된 컨테이너를 포함한 전체 컨테이너 목록 확인 |
+| `docker images` | 로컬에 저장된 Docker 이미지 목록 확인 |
+| `docker rm 컨테이너ID` | 종료된 컨테이너 삭제 |
+| `docker rmi 이미지이름:태그` | Docker 이미지 삭제 |
+| `exit` | 컨테이너 내부 셸 종료 |
+
+---
+
+### 7.12 Docker 실습 요약
 
 이번 실습을 통해 다음 내용을 확인했다.
 
-- Docker와 Docker Compose가 정상 설치되어 있음
-- Docker 데몬이 정상 실행 중임
-- `hello-world` 이미지를 다운로드하고 컨테이너를 실행할 수 있음
-- `docker ps`, `docker ps -a`, `docker images` 명령어로 컨테이너와 이미지 상태를 확인할 수 있음
+- Docker가 정상적으로 이미지를 다운로드하고 컨테이너를 실행할 수 있음
+- `hello-world` 이미지를 통해 Docker 설치 상태를 검증할 수 있음
+- `docker ps -a` 명령어로 종료된 컨테이너까지 확인할 수 있음
+- `docker images` 명령어로 로컬에 저장된 이미지 목록을 확인할 수 있음
 - Ubuntu 컨테이너를 실행하고 내부에서 Linux 명령어를 사용할 수 있음
 - `exit` 명령어로 컨테이너 내부 셸을 종료할 수 있음
+- `docker rm` 명령어로 종료된 컨테이너를 삭제할 수 있음
+- 컨테이너를 삭제해도 이미지는 자동으로 삭제되지 않음
+- `docker rmi` 명령어로 Docker 이미지를 삭제할 수 있음
 
 ## 8. Dockerfile 기반 웹 서버
 
