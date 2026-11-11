@@ -756,12 +756,12 @@ This page is served from a Docker container.
 
 ```bash
 docker run -d -p 8081:80 --name docker-web-bind -v ${PWD}/index.html:/usr/share/nginx/html/index.html nginx:alpine
-
-![Bind Mount Before](./screenshots/bind-mount-before.png)
+```
+![Bind Mount Before](./web-server-practice/screenshots/bind-mount-before.png)
 
 index.html 파일을 수정한 뒤 브라우저를 새로고침하니 변경 내용이 바로 반영되었다.
 
-![Bind Mount After](./screenshots/bind-mount-after.png)
+![Bind Mount After](./web-server-practice/screenshots/bind-mount-after.png)
 
 ---
 
