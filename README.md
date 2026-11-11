@@ -750,6 +750,18 @@ This page is served from a Docker container.
 
 ![Docker Nginx 접속 화면](web-server-practice/screenshots/docker-web-localhost.png)
 
+## 바인드 마운트 실습
+
+바인드 마운트를 사용하여 로컬의 `index.html` 파일을 컨테이너 내부의 Nginx 웹 루트에 연결하였다.
+
+```bash
+docker run -d -p 8081:80 --name docker-web-bind -v ${PWD}/index.html:/usr/share/nginx/html/index.html nginx:alpine
+
+![Bind Mount Before](./screenshots/bind-mount-before.png)
+
+index.html 파일을 수정한 뒤 브라우저를 새로고침하니 변경 내용이 바로 반영되었다.
+
+![Bind Mount After](./screenshots/bind-mount-after.png)
 
 ---
 
