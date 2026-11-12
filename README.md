@@ -969,9 +969,143 @@ hello docker volume
 - Windows Git Bash에서는 Linux 경로가 Windows 경로로 자동 변환될 수 있다.
 - Git Bash 경로 변환 문제는 `MSYS_NO_PATHCONV=1`을 사용하거나 `sh -c`로 명령어를 감싸 해결할 수 있다.
 
-## 11. Git 설정 및 GitHub/VSCode 연동
+## 11. Git 설정 및 GitHub 연동
 
-작성 예정
+이번 단계에서는 Git 사용자 정보를 설정하고, GitHub 저장소와 로컬 프로젝트를 연동하였다.  
+로컬에서 작성한 파일을 Git으로 관리하고, 변경 내용을 GitHub 원격 저장소에 업로드하는 과정을 실습하였다.
+
+---
+
+### 11-1. Git 사용자 정보 설정 확인
+
+Git commit 기록에 사용할 사용자 이름과 이메일 설정을 확인하였다.
+
+```bash
+git config --global user.name
+git config --global user.email
+```
+
+필요한 경우 아래 명령어로 사용자 정보를 설정할 수 있다.
+
+```bash
+git config --global user.name "본인 GitHub 사용자명"
+git config --global user.email "본인 GitHub 이메일 또는 GitHub noreply 이메일"
+```
+
+> 개인정보 보호를 위해 README에는 실제 이메일을 직접 작성하지 않았다.
+
+---
+
+### 11-2. 기본 브랜치 설정 확인
+
+새로운 Git 저장소를 만들 때 기본 브랜치 이름이 `main`으로 설정되어 있는지 확인하였다.
+
+```bash
+git config --global init.defaultBranch
+```
+
+실행 결과:
+
+```bash
+main
+```
+
+현재 기본 브랜치가 `main`으로 설정되어 있음을 확인하였다.
+
+---
+
+### 11-3. 현재 브랜치 확인
+
+현재 작업 중인 브랜치를 확인하였다.
+
+```bash
+git branch
+```
+
+실행 결과:
+
+```bash
+* main
+```
+
+`*` 표시가 있는 `main` 브랜치에서 작업 중임을 확인하였다.
+
+---
+
+### 11-4. GitHub 원격 저장소 연결 확인
+
+현재 로컬 저장소가 연결된 GitHub 원격 저장소를 확인하였다.
+
+```bash
+git remote -v
+```
+
+실행 결과:
+
+```bash
+origin  https://github.com/jbfc1028-glitch/dev-workstation-mission.git (fetch)
+origin  https://github.com/jbfc1028-glitch/dev-workstation-mission.git (push)
+```
+
+위 결과를 통해 로컬 저장소가 GitHub의 `dev-workstation-mission` 저장소와 정상적으로 연결되어 있음을 확인하였다.
+
+---
+
+### 11-5. 변경 상태 확인
+
+작업한 파일의 변경 상태를 확인하였다.
+
+```bash
+git status
+```
+
+변경된 파일이 없을 경우 다음과 같이 표시된다.
+
+```bash
+nothing to commit, working tree clean
+```
+
+변경 사항이 있을 경우 `git add`, `git commit`, `git push` 순서로 GitHub에 업로드할 수 있다.
+
+---
+
+### 11-6. README 수정 후 Commit 및 Push
+
+README.md 파일을 수정한 뒤, 변경 내용을 Git에 추가하였다.
+
+```bash
+git add README.md
+```
+
+commit을 생성하였다.
+
+```bash
+git commit -m "Add Git setup and GitHub connection section"
+```
+
+로컬 commit을 GitHub 원격 저장소에 업로드하였다.
+
+```bash
+git push
+```
+
+처음 push하거나 upstream 설정이 필요한 경우에는 아래 명령어를 사용할 수 있다.
+
+```bash
+git push -u origin main
+```
+
+---
+
+### 11-7. 실습 결과
+
+- Git 기본 브랜치가 `main`으로 설정되어 있음을 확인
+- 현재 작업 브랜치가 `main`임을 확인
+- 로컬 저장소와 GitHub 원격 저장소 연결 확인
+- README.md 수정 후 Git으로 변경 사항 관리
+- commit 및 push를 통해 GitHub에 변경 내용 업로드
+
+이번 실습을 통해 로컬 개발 환경에서 작성한 파일을 Git으로 버전 관리하고, GitHub 원격 저장소와 연동하는 기본 흐름을 익혔다.
 
 ## 12. 트러블슈팅
 
