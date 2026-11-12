@@ -773,10 +773,201 @@ index.html 파일을 수정한 뒤 브라우저를 새로고침하니 변경 내
 - `-p 8080:80` 옵션을 사용하면 호스트 PC의 포트와 컨테이너 내부 포트를 연결할 수 있다.
 - 브라우저에서 `localhost:8080`으로 접속하면 컨테이너에서 실행 중인 웹 서버에 접근할 수 있다.
 
-## 10. Docker 볼륨 영속성 검증
+## 10.Docker Volume 영속성 실습
 
-작성 예정
+### 실습 목표
 
+Docker Volume을 사용하여 컨테이너가 삭제되어도 데이터가 유지되는지 확인했다.
+
+Docker 컨테이너 내부에만 저장된 데이터는 컨테이너를 삭제하면 함께 사라진다.  
+하지만 Docker Volume을 사용하면 컨테이너와 독립적으로 데이터를 저장할 수 있다.
+
+---
+
+### Docker Volume 생성
+
+Docker Volume을 생성하기 위해 다음 명령어를 실행했다.
+
+```bash
+docker volume create my-data
+```
+
+실행 결과:
+
+```text
+my-data
+```
+
+`my-data`라는 이름의 Docker Volume이 생성되었다.
+
+---
+
+### Docker Volume 목록 확인
+
+생성된 Volume 목록을 확인했다.
+
+```bash
+docker volume ls
+```
+
+실행 결과:
+
+```text
+DRIVER    VOLUME NAME
+local     my-data
+```
+
+`local` 드라이버를 사용하는 `my-data` Volume이 정상적으로 생성된 것을 확인했다.
+
+---
+
+### Volume을 연결한 컨테이너 실행
+
+생성한 Volume을 컨테이너의 `/data` 경로에 연결하여 Alpine 컨테이너를 실행했다.
+
+```bash
+docker run -it --name volume-test -v my-data:/data alpine sh
+```
+
+실행 결과:
+
+```text
+Unable to find image 'alpine:latest' locally
+latest: Pulling from library/alpine
+881fc932939e: Pull complete 
+86ff264fe568: Download complete 
+c35a7d82b8fa: Download complete 
+Digest: sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
+Status: Downloaded newer image for alpine:latest
+```
+
+`alpine` 이미지가 로컬에 없었기 때문에 Docker가 자동으로 이미지를 다운로드했다.
+
+명령어 옵션의 의미는 다음과 같다.
+
+| 옵션 | 의미 |
+|---|---|
+| `-it` | 컨테이너를 대화형 터미널로 실행 |
+| `--name volume-test` | 컨테이너 이름을 `volume-test`로 지정 |
+| `-v my-data:/data` | `my-data` Volume을 컨테이너의 `/data` 경로에 연결 |
+| `alpine sh` | Alpine 컨테이너에서 `sh` 셸 실행 |
+
+---
+
+### 컨테이너 내부에서 파일 생성
+
+컨테이너 내부의 `/data` 경로에 파일을 생성했다.
+
+```sh
+echo "hello docker volume" > /data/hello.txt
+```
+
+생성한 파일의 내용을 확인했다.
+
+```sh
+cat /data/hello.txt
+```
+
+실행 결과:
+
+```text
+hello docker volume
+```
+
+`/data` 경로는 Docker Volume인 `my-data`와 연결되어 있으므로, 이 파일은 컨테이너 내부가 아니라 Volume에 저장된다.
+
+컨테이너에서 나갔다.
+
+```sh
+exit
+```
+
+---
+
+### 컨테이너 삭제
+
+파일을 생성한 뒤 컨테이너를 삭제했다.
+
+```bash
+docker rm volume-test
+```
+
+실행 결과:
+
+```text
+volume-test
+```
+
+`volume-test` 컨테이너가 삭제되었다.
+
+---
+
+### 컨테이너 삭제 후 Volume 데이터 확인
+
+컨테이너를 삭제한 뒤, 새 임시 컨테이너를 실행해서 Volume 안의 파일이 남아 있는지 확인했다.
+
+처음에는 다음 명령어를 실행했다.
+
+```bash
+docker run --rm -v my-data:/data alpine cat /data/hello.txt
+```
+
+실행 결과:
+
+```text
+cat: can't open 'C:/Program Files/Git/data/hello.txt': No such file or directory
+```
+
+Windows Git Bash 환경에서는 `/data/hello.txt` 같은 Linux 경로가 Windows 경로로 자동 변환될 수 있다.  
+이 때문에 `/data/hello.txt`가 `C:/Program Files/Git/data/hello.txt`로 변환되어 오류가 발생했다.
+
+---
+
+### Git Bash 경로 변환 문제 해결
+
+Git Bash의 경로 자동 변환을 막기 위해 `MSYS_NO_PATHCONV=1`을 붙여 실행했다.
+
+```bash
+MSYS_NO_PATHCONV=1 docker run --rm -v my-data:/data alpine cat /data/hello.txt
+```
+
+실행 결과:
+
+```text
+hello docker volume
+```
+
+컨테이너를 삭제했지만 `hello.txt` 파일의 내용이 정상적으로 출력되었다.  
+이를 통해 Docker Volume에 저장된 데이터가 유지된다는 것을 확인했다.
+
+---
+
+### 다른 방법으로 데이터 확인
+
+`sh -c`로 명령어를 감싸서 실행해도 정상적으로 파일 내용을 확인할 수 있었다.
+
+```bash
+docker run --rm -v my-data:/data alpine sh -c 'cat /data/hello.txt'
+```
+
+실행 결과:
+
+```text
+hello docker volume
+```
+
+이 방법으로도 `my-data` Volume 안의 파일이 정상적으로 유지되고 있음을 확인했다.
+
+---
+
+### 배운 점
+
+- Docker Volume은 컨테이너와 독립적으로 데이터를 저장한다.
+- 컨테이너를 삭제해도 Volume에 저장된 데이터는 유지된다.
+- `-v my-data:/data` 옵션을 사용하면 Volume을 컨테이너 내부 경로에 연결할 수 있다.
+- `docker rm`으로 컨테이너를 삭제해도 `my-data` Volume은 삭제되지 않는다.
+- Windows Git Bash에서는 Linux 경로가 Windows 경로로 자동 변환될 수 있다.
+- Git Bash 경로 변환 문제는 `MSYS_NO_PATHCONV=1`을 사용하거나 `sh -c`로 명령어를 감싸 해결할 수 있다.
 ## 11. Git 설정 및 GitHub/VSCode 연동
 
 작성 예정
@@ -818,6 +1009,134 @@ Windows의 NTFS 권한 체계와 Linux의 권한 체계가 다르기 때문이�
 
 Windows Git Bash에서는 출력이 기대와 다를 수 있으므로, 실습 결과에는 실제 출력과 함께 환경 차이를 기록했다.
 
+---
+
+### 트러블슈팅
+
+#### 1. Git Bash에서 컨테이너 내부 경로가 Windows 경로로 변환되는 문제
+
+##### 문제
+
+Docker Volume에 저장된 파일이 유지되는지 확인하기 위해 다음 명령어를 실행했다.
+
+```bash
+docker run --rm -v my-data:/data alpine cat /data/hello.txt
+```
+
+하지만 다음과 같은 오류가 발생했다.
+
+```text
+cat: can't open 'C:/Program Files/Git/data/hello.txt': No such file or directory
+```
+
+##### 원인 가설
+
+Windows Git Bash에서는 `/data/hello.txt`와 같은 Linux 형식의 경로를 Windows 경로로 자동 변환하는 경우가 있다.
+
+따라서 Docker 컨테이너 내부 경로인 `/data/hello.txt`가 Git Bash에 의해 `C:/Program Files/Git/data/hello.txt`로 변환되었을 가능성이 있다고 생각했다.
+
+##### 확인
+
+오류 메시지를 확인해 보니 Docker 컨테이너 내부의 `/data/hello.txt`를 찾는 것이 아니라, 아래 Windows 경로를 찾고 있었다.
+
+```text
+C:/Program Files/Git/data/hello.txt
+```
+
+이를 통해 Git Bash의 경로 자동 변환 때문에 문제가 발생한 것을 확인했다.
+
+##### 해결/대안
+
+Git Bash의 경로 자동 변환을 막기 위해 `MSYS_NO_PATHCONV=1`을 앞에 붙여 실행했다.
+
+```bash
+MSYS_NO_PATHCONV=1 docker run --rm -v my-data:/data alpine cat /data/hello.txt
+```
+
+실행 결과:
+
+```text
+hello docker volume
+```
+
+또 다른 방법으로는 `sh -c`를 사용해 컨테이너 내부에서 명령어가 실행되도록 감싸는 방법이 있다.
+
+```bash
+docker run --rm -v my-data:/data alpine sh -c 'cat /data/hello.txt'
+```
+
+실행 결과:
+
+```text
+hello docker volume
+```
+
+이 방법을 통해 컨테이너가 삭제된 후에도 Docker Volume에 저장된 데이터가 유지되는 것을 확인할 수 있었다.
+
+---
+
+#### 2. Docker 실행 옵션을 컨테이너 내부에서 입력한 문제
+
+##### 문제
+
+Volume을 연결하는 과정에서 컨테이너 내부 셸에 다음 내용을 입력했다.
+
+```sh
+-v my-data:/data
+```
+
+그 결과 다음과 같은 오류가 발생했다.
+
+```text
+sh: -v: not found
+```
+
+##### 원인 가설
+
+`-v my-data:/data`는 컨테이너 내부에서 실행하는 Linux 명령어가 아니라, `docker run` 명령어에 붙여 사용하는 Docker 옵션이다.
+
+이미 실행된 컨테이너 내부에서는 `-v` 옵션을 적용할 수 없기 때문에 `sh`가 `-v`를 명령어로 해석하려고 한 것으로 예상했다.
+
+##### 확인
+
+오류 메시지를 확인해 보니 다음과 같이 출력되었다.
+
+```text
+sh: -v: not found
+```
+
+이는 컨이너 내부의 `sh`가 `-v`라는 명령어를 찾으려고 했지만, 그런 명령어가 없어서 발생한 오류라는 뜻이다.
+
+즉, `-v` 옵션을 잘못된 위치에서 실행했다는 것을 확인했다.
+
+##### 해결/대안
+
+Volume 연결 옵션은 컨테이너 내부가 아니라 컨테이너를 실행할 때 `docker run` 명령어와 함께 사용해야 한다.
+
+올바른 명령어는 다음과 같다.
+
+```bash
+docker run -it --name volume-test -v my-data:/data alpine sh
+```
+
+위 명령어를 사용하면 `my-data` Volume이 컨테이너 내부의 `/data` 경로에 정상적으로 연결된다.
+
+이후 컨테이너 내부에서 다음 명령어로 파일을 생성하고 확인할 수 있다.
+
+```sh
+echo "hello docker volume" > /data/hello.txt
+cat /data/hello.txt
+```
+
+실행 결과:
+
+```text
+hello docker volume
+```
+테
+이를 통해 Docker 옵션은 컨테이너 내부가 아니라 컨테이너를 실행하는 시점에 작성해야 한다는 것을 알게 되었다.
+
+---
 ## 13. 학습 내용 정리
 
 작성 예정
