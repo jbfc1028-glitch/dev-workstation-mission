@@ -968,6 +968,7 @@ hello docker volume
 - `docker rm`으로 컨테이너를 삭제해도 `my-data` Volume은 삭제되지 않는다.
 - Windows Git Bash에서는 Linux 경로가 Windows 경로로 자동 변환될 수 있다.
 - Git Bash 경로 변환 문제는 `MSYS_NO_PATHCONV=1`을 사용하거나 `sh -c`로 명령어를 감싸 해결할 수 있다.
+
 ## 11. Git 설정 및 GitHub/VSCode 연동
 
 작성 예정
