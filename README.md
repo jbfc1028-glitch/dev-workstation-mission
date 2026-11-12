@@ -236,6 +236,17 @@ C:/Users/사용자명/Desktop/dev-workstation-mission
 
 터미널 기본 명령어를 사용하여 파일과 디렉터리를 생성, 확인, 복사, 변경, 삭제하는 과정을 실습하였다.
 
+## 4-12. 절대경로와 상대경로
+
+파일이나 디렉터리를 지정할 때는 절대경로와 상대경로를 사용할 수 있다.
+
+절대경로는 현재 위치와 관계없이 파일이나 폴더의 전체 위치를 나타내는 경로이다.
+
+예시:
+
+```bash
+/c/Users/user/dev-workstation-mission/README.md
+
 ---
 
 ## 5. 권한 실습
@@ -1361,3 +1372,148 @@ hello docker volume
 ```
 
 이 방법을 통해 컨테이너가 삭제된 후에도 Docker Volume에 저장된 데이터가 유지되는 것을 확인할 수 있었다.
+
+### 문제 3. Docker 컨테이너 실행 시 포트 충돌 문제
+
+#### 문제 상황
+
+Nginx 컨테이너를 실행하면서 호스트의 `8082` 포트를 컨테이너의 `80` 포트에 연결했다.
+
+```bash
+docker run --name port-test-1 -d -p 8082:80 nginx:alpine
+```
+
+실행 후 `docker ps`로 확인해 보니 `port-test-1` 컨테이너가 정상적으로 실행 중이었다.
+
+```bash
+docker ps
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE          PORTS                                     NAMES
+cff00e0289fa   nginx:alpine   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp   port-test-1
+```
+
+이후 같은 호스트 포트인 `8082`를 사용하여 두 번째 컨테이너를 실행했다.
+
+```bash
+docker run --name port-test-2 -d -p 8082:80 nginx:alpine
+```
+
+하지만 다음과 같은 오류가 발생했다.
+
+```text
+Bind for 0.0.0.0:8082 failed: port is already allocated
+```
+
+---
+
+#### 원인 가설
+
+Docker에서 포트 매핑은 다음과 같은 형식으로 사용한다.
+
+```text
+호스트 포트:컨테이너 포트
+```
+
+여기서 `8082:80`은 호스트의 `8082` 포트를 컨테이너 내부의 `80` 포트와 연결한다는 의미이다.
+
+이미 `port-test-1` 컨테이너가 호스트의 `8082` 포트를 사용하고 있기 때문에, 두 번째 컨테이너가 같은 `8082` 포트를 사용하려고 하면서 충돌이 발생한 것으로 생각했다.
+
+즉, 하나의 호스트 포트는 동시에 여러 컨테이너에 중복해서 연결할 수 없다.
+
+---
+
+#### 확인
+
+현재 실행 중인 컨테이너를 확인하기 위해 다음 명령어를 실행했다.
+
+```bash
+docker ps
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE          PORTS                                     NAMES
+cff00e0289fa   nginx:alpine   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp   port-test-1
+```
+
+확인 결과 `port-test-1` 컨테이너가 실행 중이며, 호스트의 `8082` 포트를 사용하고 있었다.
+
+따라서 두 번째 컨테이너 실행 시 발생한 오류는 이미 사용 중인 포트를 다시 사용하려고 해서 발생한 포트 충돌 문제임을 확인했다.
+
+---
+
+#### 해결/대안
+
+먼저 포트 충돌로 정상 실행되지 않은 `port-test-2` 컨테이너를 삭제했다.
+
+```bash
+docker rm -f port-test-2
+```
+
+실행 결과:
+
+```text
+port-test-2
+```
+
+그다음 두 번째 컨테이너는 다른 호스트 포트인 `8083`을 사용하도록 실행했다.
+
+```bash
+docker run --name port-test-2 -d -p 8083:80 nginx:alpine
+```
+
+실행 후 다시 컨테이너 상태를 확인했다.
+
+```bash
+docker ps
+```
+
+실행 결과:
+
+```text
+CONTAINER ID   IMAGE          PORTS                                     NAMES
+22f505e1d289   nginx:alpine   0.0.0.0:8083->80/tcp, [::]:8083->80/tcp   port-test-2
+cff00e0289fa   nginx:alpine   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp   port-test-1
+```
+
+`port-test-1`은 `8082:80`, `port-test-2`는 `8083:80`으로 실행되어 두 컨테이너가 정상적으로 동시에 실행되는 것을 확인했다.
+
+---
+
+#### 실습 후 정리
+
+실습이 끝난 뒤 실행 중인 컨테이너를 중지하고 삭제했다.
+
+```bash
+docker stop port-test-1 port-test-2
+docker rm port-test-1 port-test-2
+```
+
+실행 결과:
+
+```text
+port-test-1
+port-test-2
+port-test-1
+port-test-2
+```
+
+---
+
+#### 정리
+
+이번 문제는 Docker 컨테이너를 실행할 때 같은 호스트 포트를 중복해서 사용하려고 해서 발생한 문제였다.
+
+해결 방법은 다음과 같다.
+
+- 기존에 해당 포트를 사용 중인 컨테이너를 중지한다.
+- 또는 새 컨테이너에 다른 호스트 포트를 지정한다.
+
+이번 실습에서는 두 번째 방법을 사용하여 `port-test-2` 컨테이너를 `8083:80`으로 실행했고, 포트 충돌 문제를 해결했다.
+
+---
