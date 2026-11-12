@@ -17,22 +17,226 @@
 
 ## 3. 수행 항목 체크리스트
 
-- [ ] 터미널 기본 조작
-- [ ] 파일/디렉토리 권한 실습
-- [ ] Docker 설치 점검
-- [ ] Docker 기본 운영 명령
-- [ ] hello-world 컨테이너 실행
-- [ ] ubuntu 컨테이너 실습
-- [ ] 포트 매핑 접속 확인
-- [ ] Dockerfile 기반 커스텀 이미지 제작
-- [ ] 바인드 마운트 반영 확인
-- [ ] Docker 볼륨 영속성 확인
-- [ ] G Git 설정
-- [ ]itHub/VSCode 연동
+- [V] 터미널 기본 조작
+- [V] 파일/디렉토리 권한 실습
+- [V] Docker 설치 점검
+- [V] Docker 기본 운영 명령
+- [V] hello-world 컨테이너 실행
+- [V] ubuntu 컨테이너 실습
+- [V] 포트 매핑 접속 확인
+- [V] Dockerfile 기반 커스텀 이미지 제작
+- [V] 바인드 마운트 반영 확인
+- [V] Docker 볼륨 영속성 확인
+- [V] Git 설정 Github 연동
 
-## 4. 터미널 기본 조작 로그
+## 4. 터미널 조작 로그 기록
 
-작성 예정
+이번 단계에서는 Git Bash 터미널을 사용하여 기본 파일/디렉터리 조작 명령어를 실습하였다.  
+현재 위치 확인, 목록 확인, 디렉터리 이동, 파일 생성, 내용 확인, 복사, 이름 변경, 삭제 명령을 수행하고 결과를 기록하였다.
+
+---
+
+### 4-1. 현재 위치 확인
+
+```bash
+pwd
+```
+
+실행 결과:
+
+```bash
+/c/Users/사용자명/dev-workstation-mission
+```
+
+현재 작업 중인 디렉터리 위치를 확인하였다.
+
+---
+
+### 4-2. 목록 확인
+
+```bash
+ls -la
+```
+
+실행 결과 :
+
+```bash
+total 44
+drwxr-xr-x 1 사용자명 1049089     0 Nov 12 12:18 ./
+drwxr-xr-x 1 사용자명 1049089     0 Nov 12 12:18 ../
+drwxr-xr-x 1 사용자명 1049089     0 Nov 12 13:47 .git/
+drwxr-xr-x 1 사용자명 1049089     0 Nov 12 12:18 dockerfile-practice/
+drwxr-xr-x 1 사용자명 1049089     0 Nov 12 12:18 permissions-practice/
+drwxr-xr-x 1 사용자명1049089     0 Nov 12 12:18 practice/
+-rw-r--r-- 1 사용자명 1049089 32507 Nov 12 13:46 README.md
+drwxr-xr-x 1 사용자명 1049089     0 Nov 12 12:18 web-server-practice/
+```
+
+`ls -la` 명령어를 사용하여 숨김 파일과 디렉터리를 포함한 전체 목록을 확인하였다.
+
+---
+
+### 4-3. 실습용 디렉터리 생성 및 이동
+
+```bash
+mkdir terminal-log-practice
+cd terminal-log-practice
+pwd
+```
+
+실행 결과:
+
+```bash
+/c/Users/사용자명/dev-workstation-mission/terminal-log-practice
+```
+
+`mkdir` 명령어로 실습용 디렉터리를 생성하고, `cd` 명령어로 해당 디렉터리로 이동하였다.
+
+---
+
+### 4-4. 빈 파일 생성
+
+```bash
+touch empty.txt
+```
+
+`touch` 명령어를 사용하여 빈 파일 `empty.txt`를 생성하였다.
+
+---
+
+### 4-5. 내용이 있는 파일 생성 및 파일 내용 확인
+
+```bash
+echo "Terminal command practice" > note.txt
+cat note.txt
+```
+
+실행 결과:
+
+```bash
+Terminal command practice
+```
+
+`echo` 명령어로 파일에 내용을 작성하고, `cat` 명령어로 파일 내용을 확인하였다.
+
+---
+
+### 4-6. 숨김 파일 생성 및 목록 확인
+
+```bash
+touch .hidden-file
+ls -la
+```
+
+실행 결과 예시:
+
+```bash
+total 5
+drwxr-xr-x 1 사용자명 1049089  0 Nov 12 13:59 ./
+drwxr-xr-x 1 사용자명  1049089  0 Nov 12 13:57 ../
+-rw-r--r-- 1 사용자명  1049089  0 Nov 12 13:59 .hidden-file
+-rw-r--r-- 1 사용자명  1049089  0 Nov 12 13:58 empty.txt
+-rw-r--r-- 1 사용자명  1049089 26 Nov 12 13:58 note.txt
+```
+
+`.`으로 시작하는 파일은 숨김 파일로 취급된다.  
+`ls -la` 명령어를 사용하면 숨김 파일까지 확인할 수 있다.
+
+---
+
+### 4-7. 파일 복사
+
+```bash
+cp note.txt note-copy.txt
+ls -la
+```
+
+실행 결과 예시:
+
+```bash
+-rw-r--r-- 1 사용자명 1049089 26 Nov 12 13:58 note.txt
+-rw-r--r-- 1 사용자명1049089 26 Nov 12 14:00 note-copy.txt
+```
+
+`cp` 명령어를 사용하여 `note.txt` 파일을 `note-copy.txt`로 복사하였다.
+
+---
+
+### 4-8. 파일 이동 및 이름 변경
+
+```bash
+mv note-copy.txt note-renamed.txt
+ls -la
+```
+
+실행 결과 예시:
+
+```bash
+-rw-r--r-- 1 사용자명 1049089 26 Nov 12 13:58 note.txt
+-rw-r--r-- 1 사용자명1049089 26 Nov 12 14:00 note-renamed.txt
+```
+
+`mv` 명령어를 사용하여 `note-copy.txt` 파일 이름을 `note-renamed.txt`로 변경하였다.
+
+---
+
+### 4-9. 파일 삭제
+
+```bash
+rm empty.txt
+ls -la
+```
+
+실행 결과 예시:
+
+```bash
+drwxr-xr-x 1 사용자명 1049089  0 Nov 12 14:02 ./
+drwxr-xr-x 1 사용자명1049089  0 Nov 12 13:57 ../
+-rw-r--r-- 1 사용자명1049089  0 Nov 12 13:59 .hidden-file
+-rw-r--r-- 1 사용자명1049089 26 Nov 12 13:58 note.txt
+-rw-r--r-- 1 사용자명1049089 26 Nov 12 14:00 note-renamed.txt
+```
+
+`rm` 명령어를 사용하여 `empty.txt` 파일을 삭제하였다.
+
+---
+
+### 4-10. 상위 디렉터리로 이동
+
+```bash
+cd ..
+pwd
+```
+
+실행 결과:
+
+```bash
+C:/Users/사용자명/Desktop/dev-workstation-mission
+```
+
+`cd ..` 명령어를 사용하여 상위 디렉터리로 이동하였다.
+
+---
+
+### 4-11. 실습 결과 정리
+
+이번 실습에서 사용한 터미널 명령어는 다음과 같다.
+
+| 작업 | 명령어 |
+|---|---|
+| 현재 위치 확인 | `pwd` |
+| 목록 확인 | `ls -la` |
+| 디렉터리 생성 | `mkdir` |
+| 디렉터리 이동 | `cd` |
+| 빈 파일 생성 | `touch` |
+| 파일 내용 확인 | `cat` |
+| 파일 복사 | `cp` |
+| 파일 이동/이름 변경 | `mv` |
+| 파일 삭제 | `rm` |
+
+터미널 기본 명령어를 사용하여 파일과 디렉터리를 생성, 확인, 복사, 변경, 삭제하는 과정을 실습하였다.
+
+---
 
 ## 5. 권한 실습
 
@@ -116,12 +320,6 @@ drwxr-xr-x 1 user group  0 Nov 11 12:48 private-dir/
 | `700` | 소유자만 읽기/쓰기/실행 가능 |
 | `755` | 소유자는 읽기/쓰기/실행, 그룹과 기타 사용자는 읽기/실행 가능 |
 
-### 정리
-
-- `chmod 600 secret.txt`와 `chmod 700 private-dir` 명령을 실행했다.
-- 그러나 Windows Git Bash 환경에서는 `chmod` 결과가 `ls -l` 출력에 기대한 형태로 반영되지 않았다.
-- 이는 Windows의 파일 시스템 권한 처리 방식과 Git Bash의 권한 표시 방식이 Linux 환경과 다를 수 있기 때문이다.
-- 권한 명령의 의미는 이해했고, `600`, `644`, `700`, `755`의 차이를 정리했다.
 ## 6.Docker 설치 및 점검
 
 ### Docker 버전 확인
@@ -449,20 +647,6 @@ docker images
 
 ---
 
-### 7.12 Docker 실습 요약
-
-이번 실습을 통해 다음 내용을 확인했다.
-
-- Docker가 정상적으로 이미지를 다운로드하고 컨테이너를 실행할 수 있음
-- `hello-world` 이미지를 통해 Docker 설치 상태를 검증할 수 있음
-- `docker ps -a` 명령어로 종료된 컨테이너까지 확인할 수 있음
-- `docker images` 명령어로 로컬에 저장된 이미지 목록을 확인할 수 있음
-- Ubuntu 컨테이너를 실행하고 내부에서 Linux 명령어를 사용할 수 있음
-- `exit` 명령어로 컨테이너 내부 셸을 종료할 수 있음
-- `docker rm` 명령어로 종료된 컨테이너를 삭제할 수 있음
-- 컨테이너를 삭제해도 이미지는 자동으로 삭제되지 않음
-- `docker rmi` 명령어로 Docker 이미지를 삭제할 수 있음
-
 ## 8. Dockerfile 기반 커스텀 이미지 제작
 
 ### 선택한 방식
@@ -601,17 +785,6 @@ ubuntu:latest      6a06111c3b0a        163MB         45.9MB
 이미지 목록에서 직접 빌드한 커스텀 이미지 `docker-hello:1.0`이 생성된 것을 확인했다.
 
 ---
-
-### 배운 점
-
-- `Dockerfile`은 Docker 이미지를 만들기 위한 설계도이다.
-- 기존 베이스 이미지인 `alpine:latest`를 기반으로 나만의 커스텀 이미지를 만들 수 있다.
-- `WORKDIR`로 컨테이너 내부 작업 디렉터리를 지정할 수 있다.
-- `COPY`로 로컬 파일을 이미지 내부에 포함할 수 있다.
-- `RUN`은 이미지 빌드 중 실행되는 명령이다.
-- `CMD`는 컨테이너가 실행될 때 실행되는 명령이다.
-- `docker build`로 이미지를 생성하고, `docker run`으로 컨테이너를 실행할 수 있다.
-- 실행 결과를 통해 커스텀 이미지가 정상적으로 빌드되고 실행된 것을 확인했다.
 
 ## 9. Docker 웹 서버 실행 및 포트 매핑
 
@@ -764,14 +937,6 @@ index.html 파일을 수정한 뒤 브라우저를 새로고침하니 변경 내
 ![Bind Mount After](./web-server-practice/screenshots/bind-mount-after.png)
 
 ---
-
-### 배운 점
-
-- Docker 컨테이너 안에서 웹 서버를 실행할 수 있다.
-- `nginx:alpine` 이미지를 사용하면 가벼운 Nginx 웹 서버 이미지를 만들 수 있다.
-- `COPY` 명령어로 내가 만든 HTML 파일을 컨테이너 내부 웹 루트 경로에 넣을 수 있다.
-- `-p 8080:80` 옵션을 사용하면 호스트 PC의 포트와 컨테이너 내부 포트를 연결할 수 있다.
-- 브라우저에서 `localhost:8080`으로 접속하면 컨테이너에서 실행 중인 웹 서버에 접근할 수 있다.
 
 ## 10.Docker Volume 영속성 실습
 
@@ -959,15 +1124,6 @@ hello docker volume
 이 방법으로도 `my-data` Volume 안의 파일이 정상적으로 유지되고 있음을 확인했다.
 
 ---
-
-### 배운 점
-
-- Docker Volume은 컨테이너와 독립적으로 데이터를 저장한다.
-- 컨테이너를 삭제해도 Volume에 저장된 데이터는 유지된다.
-- `-v my-data:/data` 옵션을 사용하면 Volume을 컨테이너 내부 경로에 연결할 수 있다.
-- `docker rm`으로 컨테이너를 삭제해도 `my-data` Volume은 삭제되지 않는다.
-- Windows Git Bash에서는 Linux 경로가 Windows 경로로 자동 변환될 수 있다.
-- Git Bash 경로 변환 문제는 `MSYS_NO_PATHCONV=1`을 사용하거나 `sh -c`로 명령어를 감싸 해결할 수 있다.
 
 ## 11. Git 설정 및 GitHub 연동
 
@@ -1205,8 +1361,3 @@ hello docker volume
 ```
 
 이 방법을 통해 컨테이너가 삭제된 후에도 Docker Volume에 저장된 데이터가 유지되는 것을 확인할 수 있었다.
-
----
-## 13. 학습 내용 정리
-
-작성 예정
