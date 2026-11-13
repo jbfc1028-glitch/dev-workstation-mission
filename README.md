@@ -247,11 +247,13 @@ C:/Users/사용자명/Desktop/dev-workstation-mission
 ```bash
 /c/Users/user/dev-workstation-mission/README.md
 
----
+
 
 ## 5. 권한 실습
 
 파일(`secret.txt`)과 디렉토리(`private-dir`)를 대상으로 권한 변경 명령을 실습했다.
+
+---
 
 ### 실행 명령
 
